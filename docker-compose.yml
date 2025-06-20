@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  backend:
+    image: prahlad8ac/rest:backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+#    secrets:
+#      - backend_env
+#   deploy:
+#      replicas: 3
+#      restart_policy:
+#        condition: on-failure
+#    command: sh -c "set -a && source /run/secrets/backend_env && npm start"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  frontend: 
+    image: prahlad8ac/rest:frontend
+    ports:
+      - "3000:3000"
+
+  user:
+    image: prahlad8ac/rest:user
+    ports:
+      - "5173:5173"
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+      - user
+
+#secrets:
+#  backend_env:
+#    external: true
+
+volumes:
+  mongo-data:
