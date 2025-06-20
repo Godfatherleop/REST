@@ -50,7 +50,7 @@ services:
       - "5173:5173"
 
   mongo:
-    image: mongo:6
+    image: mongo:6.0-jammy
     ports:
       - "27017:27017"
     volumes:
